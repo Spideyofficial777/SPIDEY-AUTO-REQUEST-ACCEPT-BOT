@@ -1,0 +1,15 @@
+pyrofork==2.3.45 
+tgcrypto
+pymongo
+python-dotenv
+telebot
+aiohttp
+aiofiles
+aiogram
+flake8
+black
+motor
+aiogram
+pytz
+shortzy
+
