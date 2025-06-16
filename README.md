@@ -70,8 +70,8 @@ python3 bot.py
 - [x] 𝑭𝒊𝒍𝒕𝒆𝒓 𝑼𝒏𝒋𝒐𝒊𝒏𝒆𝒅 𝑼𝒔𝒆𝒓𝒔
 - [x] 𝑨𝒖𝒕𝒐 𝑰𝒏𝒋𝒆𝒄𝒕 𝑻𝒆𝑺𝑻
 - [x] 𝑻𝒓𝒂𝒄𝒌 𝑼𝒔𝒆𝒓 𝑳𝒆𝒂𝒗𝒊𝒏𝒈 𝑬𝒗𝒆𝒏𝒕: 𝑫𝒆𝒕𝒆𝒄𝒕 𝒘𝒉𝒆𝒏 𝒂 𝒖𝒔𝒆𝒓 𝒍𝒆𝒂𝒗𝒆𝒔 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑 (𝒖𝒏𝒅𝒆𝒓 𝒕𝒉𝒆 𝒑𝒓𝒐𝒄𝒆𝒔𝒔)
-- [x] 𝑨𝒅𝒎𝒊𝒏 𝑺𝒑𝒂𝒎 𝑷𝒓𝒆𝒗𝒆𝒏𝒕𝒊𝒐𝒏 (𝒖𝒏𝒅𝒆𝒓 𝒕𝒉𝒆 𝒑𝒓𝒐𝒄𝒆𝒔𝒔)
-- [x] 
+- [x] 𝑨𝒅𝒎𝒊𝒏 𝑺𝒑𝒂𝒎 𝑷𝒓𝒆𝒗𝒆𝒏𝒕𝒊𝒐𝒏
+- [x] 𝑪𝑨𝑷𝑻𝑪𝑯𝑨 𝑽𝒆𝒓𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 (🆕)
 - [x] 
 - [x] 
 - [x] 
@@ -107,7 +107,7 @@ python3 bot.py
 - [x] BOT_TOKEN - get it from telegram app
 - [x] ADMINS - for 2 or more '12345678 89674523' add space between ids
 - [x] LOG_CHANNEL - add a private channel id
-- [x] CHANNEL_IDS - add your database channel id ,if u will share your file here the bot will add the file in database autometiccaly
+- [x] CHANNEL_IDS - For the MULTI FORCE SUB
 - [x] DATABASE_URI - if you dont know how to get it, read this documentation from scratch
 ```
 - [x] ᴍᴏʀᴇ ᴄᴏɴғɪɢs [ᴄʜᴀɴɢᴇ ʜᴇʀᴇ..](https://github.com/Spideyofficial777/SPIDEY-AUTO-REQUEST-ACCEPT-BOT/blob/main/configs.py)
