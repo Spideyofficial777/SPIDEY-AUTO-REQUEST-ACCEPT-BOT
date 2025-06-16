@@ -22,9 +22,9 @@ def is_enabled(value, default):
 #--------------------------------------------        
 SESSION = environ.get('SESSION', 'auto_request_acc')
 #--------------------------------------------    
-API_ID = int(getenv("API_ID", "26967459"))
+API_ID = int(getenv("API_ID", ""))
 #--------------------------------------------    
-API_HASH = getenv("API_HASH", "b71947dc4f2964519d8abdfb8b4873ac")
+API_HASH = getenv("API_HASH", "")
 #--------------------------------------------    
 BOT_TOKEN = getenv("BOT_TOKEN", "")
 #--------------------------------------------        
@@ -54,7 +54,7 @@ MELCOW_NEW_USERS = is_enabled((environ.get('MELCOW_NEW_USERS', "True")), True)
 #--------------------------------------------
 PORT = os.environ.get("PORT", "8080")
 #-------------------------------------------- 
-MSG_ALRT = environ.get('MSG_ALRT', 'sʜᴀʀᴇ ᴀɴᴅ sᴜᴘᴘᴏʀᴛ ᴜs')
+MSG_ALRT = environ.get('MSG_ALRT', 'sʜᴀʀᴇ ᴀɴᴅ sᴜᴘᴘᴏʀᴛ ᴜs ❤️')
 #--------------------------------------------
 # Leave message handler
 CHAT_IDS = list(map(int, getenv("CHAT_IDS", "-1001959922658,-1002470391435,-1002433552221").split(",")))
