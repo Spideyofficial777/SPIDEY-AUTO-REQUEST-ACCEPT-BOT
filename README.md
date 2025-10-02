@@ -5,7 +5,7 @@
 </h2>
 
 <p align="center">
-  <img src="">
+  <img src="https://i.ibb.co/chHyNh7m/IMG-20251002-111708-471.jpg">
 </p>
 
 _**ᴀᴠᴀɪʟᴀʙʟᴇ ᴏɴ ᴛᴇʟᴇɢʀᴀᴍ ᴀs [ ꜱᴘɪᴅᴇʏ ʀᴏʙᴏᴛ](https://t.me/SPIDER_MAN_GAMING_bot)**_
@@ -138,4 +138,5 @@ python3 bot.py
 <b> ᴀɴᴅ ᴀʟʟ [ᴛʜᴇ ᴄᴏɴᴛʀɪʙᴜᴛᴏʀs](https://t.me/+QVmLP_hlHNw3M2I1) ᴡʜᴏ ʜᴇʟᴩᴇᴅ ɪɴ ᴍᴀᴋɪɴɢ [ꜱᴘɪᴅᴇʏ] ʀᴏʙᴏᴛ ᴜsᴇғᴜʟ & ᴩᴏᴡᴇʀғᴜʟ 🖤 </b>
 
 ━━━━━━━━━━━━━━━━━━━━
+
 
