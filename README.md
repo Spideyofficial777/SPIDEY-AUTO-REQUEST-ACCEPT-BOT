@@ -5,8 +5,8 @@
 </h2>
 
 <p align="center">
-<a href="https://example.com" target="_blank">
-  <img src="https://i.ibb.co/chHyNh7m/IMG-20251002-111708-471.jpg" alt="Clickable Image">
+<a href="https://t.me/+QVmLP_hlHNw3M2I1" target="_blank">
+  <img src="https://i.ibb.co/chHyNh7m/IMG-20251002-111708-471.jpg" alt="Cineflix official">
 </a>
 
 
@@ -140,6 +140,7 @@ python3 bot.py
 <b> ᴀɴᴅ ᴀʟʟ [ᴛʜᴇ ᴄᴏɴᴛʀɪʙᴜᴛᴏʀs](https://t.me/+QVmLP_hlHNw3M2I1) ᴡʜᴏ ʜᴇʟᴩᴇᴅ ɪɴ ᴍᴀᴋɪɴɢ [ꜱᴘɪᴅᴇʏ] ʀᴏʙᴏᴛ ᴜsᴇғᴜʟ & ᴩᴏᴡᴇʀғᴜʟ 🖤 </b>
 
 ━━━━━━━━━━━━━━━━━━━━
+
 
 
 
