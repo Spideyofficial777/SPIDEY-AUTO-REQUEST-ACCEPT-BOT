@@ -5,7 +5,7 @@
 </h2>
 
 <p align="center">
-  <img src="https://envs.sh/psr.jpg">
+  <img src="">
 </p>
 
 _**ᴀᴠᴀɪʟᴀʙʟᴇ ᴏɴ ᴛᴇʟᴇɢʀᴀᴍ ᴀs [ ꜱᴘɪᴅᴇʏ ʀᴏʙᴏᴛ](https://t.me/SPIDER_MAN_GAMING_bot)**_
@@ -138,3 +138,4 @@ python3 bot.py
 <b> ᴀɴᴅ ᴀʟʟ [ᴛʜᴇ ᴄᴏɴᴛʀɪʙᴜᴛᴏʀs](https://t.me/+QVmLP_hlHNw3M2I1) ᴡʜᴏ ʜᴇʟᴩᴇᴅ ɪɴ ᴍᴀᴋɪɴɢ [ꜱᴘɪᴅᴇʏ] ʀᴏʙᴏᴛ ᴜsᴇғᴜʟ & ᴩᴏᴡᴇʀғᴜʟ 🖤 </b>
 
 ━━━━━━━━━━━━━━━━━━━━
+
