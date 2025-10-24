@@ -241,7 +241,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### 🕷️ **Built with Power. Designed for Excellence.** 🤖
 
-**© 2025 Spidey Robot. All Rights Reserved.**
+**© 2025 Spidey official. All Rights Reserved.**
 
 *Making Telegram bot management effortless, one request at a time.*
 
@@ -250,3 +250,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **[⬆ Back to Top](#-spidey--robot-)**
 
 </div>
+
