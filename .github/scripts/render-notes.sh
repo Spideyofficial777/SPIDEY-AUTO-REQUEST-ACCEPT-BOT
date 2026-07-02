@@ -1,20 +1,4 @@
 #!/usr/bin/env bash
-# =============================================================================
-# render-notes.sh
-# -----------------------------------------------------------------------------
-# Reads the per-category files produced by analyze-commits.sh (in $NOTES_DIR)
-# and writes a single Markdown document to $OUTPUT_FILE.
-#
-# A section header is only written if that category actually has content —
-# this is what satisfies the "only include sections that actually contain
-# changes" requirement. Nothing here invents text; every line already came
-# out of analyze-commits.sh, which sourced it from a real commit.
-#
-# Usage:
-#   NOTES_DIR=/tmp/release-notes OUTPUT_FILE=/tmp/body.md \
-#   INTRO="Optional short intro paragraph" \
-#     ./render-notes.sh
-# =============================================================================
 set -euo pipefail
 
 NOTES_DIR="${NOTES_DIR:-/tmp/release-notes}"
