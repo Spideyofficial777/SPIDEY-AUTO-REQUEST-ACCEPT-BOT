@@ -1,0 +1,151 @@
+# =============================================================================
+# README MAINTENANCE WORKFLOW (manual / standalone)
+# =============================================================================
+# Purpose
+#   Keep a small metadata block in README.md current: latest version, latest
+#   release date, last-updated date, and basic repository stats (stars,
+#   forks, open issues). Nothing else in the README is touched — headings,
+#   feature lists, deployment instructions, badges, and all other prose are
+#   left exactly as the maintainer wrote them.
+#
+# Trigger — why this is manual-only
+#   release.yml and monthly-maintenance.yml already refresh this same
+#   metadata block automatically as their final step every time they run,
+#   so day-to-day the README never goes stale on its own.
+#   This workflow is *not* wired to `release: published` on purpose: that
+#   event, when caused by `gh release create` using the built-in
+#   GITHUB_TOKEN (which is what release.yml does), does not trigger other
+#   workflows — that's a deliberate GitHub Actions safeguard against
+#   infinite trigger loops. A workflow listening for it here would look
+#   correct but simply never run. Rather than depend on a personal access
+#   token to route around that (extra secret to manage, extra permissions
+#   to grant), this stays a manual utility: run it from the Actions tab
+#   any time you want to force a refresh without waiting on a release
+#   (e.g. right after changing repo settings).
+#
+# Why `contents: write`
+#   The only action this workflow ever takes is committing an updated
+#   README.md, which needs push access to repository contents. It commits
+#   NOTHING if the README didn't change — that check happens before any
+#   git operations run.
+#
+# Loop prevention
+#   The commit this job makes carries `[skip ci]`, and it never pushes a
+#   tag or creates a release, so it cannot trigger release.yml or itself.
+# =============================================================================
+
+name: README Maintenance (Manual)
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: readme-maintenance
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  update-readme:
+    name: Refresh README Metadata
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity for commits made by this job
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # -----------------------------------------------------------------------
+      # Gather the values that go into the metadata block.
+      # -----------------------------------------------------------------------
+      - name: Gather repository metadata
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
+          LATEST_TAG=${LATEST_TAG:-"unreleased"}
+
+          if [ "$LATEST_TAG" != "unreleased" ]; then
+            RELEASE_DATE=$(git log -1 --format=%ad --date=short "$LATEST_TAG" 2>/dev/null || date -u +"%Y-%m-%d")
+          else
+            RELEASE_DATE="n/a"
+          fi
+
+          LAST_UPDATED=$(date -u +"%B %d, %Y")
+
+          STARS=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.stargazers_count' 2>/dev/null || echo "0")
+          FORKS=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.forks_count' 2>/dev/null || echo "0")
+          OPEN_ISSUES=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.open_issues_count' 2>/dev/null || echo "0")
+
+          echo "latest_version=$LATEST_TAG"     >> "$GITHUB_OUTPUT"
+          echo "release_date=$RELEASE_DATE"     >> "$GITHUB_OUTPUT"
+          echo "last_updated=$LAST_UPDATED"     >> "$GITHUB_OUTPUT"
+          echo "stars=$STARS"                   >> "$GITHUB_OUTPUT"
+          echo "forks=$FORKS"                   >> "$GITHUB_OUTPUT"
+          echo "open_issues=$OPEN_ISSUES"       >> "$GITHUB_OUTPUT"
+
+      # -----------------------------------------------------------------------
+      # Replace only the content between the HTML comment anchors below.
+      # If the anchors are missing (e.g. someone reformatted the README),
+      # nothing is force-inserted — the workflow just reports that and stops,
+      # rather than guessing where to put a table.
+      # -----------------------------------------------------------------------
+      - name: Update metadata block
+        id: update
+        env:
+          LATEST_VERSION: ${{ steps.meta.outputs.latest_version }}
+          RELEASE_DATE:   ${{ steps.meta.outputs.release_date }}
+          LAST_UPDATED:   ${{ steps.meta.outputs.last_updated }}
+          STARS:          ${{ steps.meta.outputs.stars }}
+          FORKS:          ${{ steps.meta.outputs.forks }}
+          OPEN_ISSUES:    ${{ steps.meta.outputs.open_issues }}
+        run: |
+          README="README.md"
+
+          if ! grep -q "<!-- LAST_UPDATED -->" "$README"; then
+            echo "No metadata anchors found in README.md — skipping (nothing modified)."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          replace_anchor () {
+            local key="$1" value="$2"
+            sed -E "s|<!-- ${key} -->.*<!-- END_${key} -->|<!-- ${key} -->${value}<!-- END_${key} -->|g" \
+              "$README" > "${README}.tmp" && mv "${README}.tmp" "$README"
+          }
+
+          replace_anchor "LAST_UPDATED"       "$LAST_UPDATED"
+          replace_anchor "LATEST_VERSION"     "$LATEST_VERSION"
+          replace_anchor "LAST_RELEASE_DATE"  "$RELEASE_DATE"
+
+          if grep -q "<!-- REPO_STARS -->" "$README"; then
+            replace_anchor "REPO_STARS" "$STARS"
+            replace_anchor "REPO_FORKS" "$FORKS"
+            replace_anchor "REPO_OPEN_ISSUES" "$OPEN_ISSUES"
+          fi
+
+          if git diff --quiet "$README"; then
+            echo "README already up to date — nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit README (only if it actually changed)
+        if: steps.update.outputs.changed == 'true'
+        env:
+          LATEST_VERSION: ${{ steps.meta.outputs.latest_version }}
+        run: |
+          git add README.md
+          git commit -m "docs: refresh README metadata for ${LATEST_VERSION} [skip ci]"
+          git push origin HEAD:main

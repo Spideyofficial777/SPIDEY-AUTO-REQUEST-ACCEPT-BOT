@@ -1,0 +1,251 @@
+# =============================================================================
+# MONTHLY MAINTENANCE WORKFLOW
+# =============================================================================
+# Purpose
+#   A safety net that runs independently of push activity, in case a month
+#   goes by with commits sitting on `main` that never triggered a release
+#   for some reason (e.g. release.yml was disabled/failing that day), and
+#   to keep the README's "last checked" metadata from going stale during
+#   quiet periods.
+#
+#   Every run:
+#     1. Refreshes the README metadata block (date, version, stats) —
+#        unconditionally, but only commits if something actually changed.
+#     2. Checks for commits since the last tag using the same
+#        analyze-commits.sh script release.yml uses. If there are none,
+#        it stops there — no empty/duplicate release is created. If there
+#        are real changes, it cuts a release exactly the way release.yml
+#        would have.
+#
+# Schedule
+#   GitHub Actions cron has no native "every 30 days" trigger, so this runs
+#   on the 1st of each month at 00:00 UTC as the closest practical
+#   approximation, plus workflow_dispatch for an on-demand run.
+#
+# Why `contents: write`
+#   Needed to commit the README refresh and, when applicable, push a tag
+#   and create a release — the same reasons documented in release.yml and
+#   readme-update.yml.
+#
+# Loop prevention
+#   All commits made here carry `[skip ci]`. release.yml's trigger ignores
+#   `[skip ci]`/`[bot]` commits, so this cannot cause a second workflow run.
+# =============================================================================
+
+name: Monthly Maintenance
+
+on:
+  schedule:
+    - cron: "0 0 1 * *" # 1st of every month, 00:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only — skip all commits, tags, and releases"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+concurrency:
+  group: monthly-maintenance
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  maintenance:
+    name: Monthly Refresh & Release Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity for commits made by this job
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # =========================================================================
+      # PART 1 — README metadata refresh (always attempted)
+      # =========================================================================
+      - name: Gather repository metadata
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
+          LATEST_TAG=${LATEST_TAG:-"unreleased"}
+          RELEASE_DATE="n/a"
+          [ "$LATEST_TAG" != "unreleased" ] && \
+            RELEASE_DATE=$(git log -1 --format=%ad --date=short "$LATEST_TAG" 2>/dev/null || echo "n/a")
+          LAST_UPDATED=$(date -u +"%B %d, %Y")
+          STARS=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.stargazers_count' 2>/dev/null || echo "0")
+          FORKS=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.forks_count' 2>/dev/null || echo "0")
+          OPEN_ISSUES=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.open_issues_count' 2>/dev/null || echo "0")
+          echo "latest_version=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          echo "release_date=$RELEASE_DATE" >> "$GITHUB_OUTPUT"
+          echo "last_updated=$LAST_UPDATED" >> "$GITHUB_OUTPUT"
+          echo "stars=$STARS"               >> "$GITHUB_OUTPUT"
+          echo "forks=$FORKS"               >> "$GITHUB_OUTPUT"
+          echo "open_issues=$OPEN_ISSUES"   >> "$GITHUB_OUTPUT"
+
+      - name: Update README metadata block
+        id: readme
+        env:
+          LATEST_VERSION: ${{ steps.meta.outputs.latest_version }}
+          RELEASE_DATE:   ${{ steps.meta.outputs.release_date }}
+          LAST_UPDATED:   ${{ steps.meta.outputs.last_updated }}
+          STARS:          ${{ steps.meta.outputs.stars }}
+          FORKS:          ${{ steps.meta.outputs.forks }}
+          OPEN_ISSUES:    ${{ steps.meta.outputs.open_issues }}
+        run: |
+          README="README.md"
+          if ! grep -q "<!-- LAST_UPDATED -->" "$README"; then
+            echo "No metadata anchors found — skipping README update."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          replace_anchor () {
+            sed -E "s|<!-- $1 -->.*<!-- END_$1 -->|<!-- $1 -->$2<!-- END_$1 -->|g" \
+              "$README" > "${README}.tmp" && mv "${README}.tmp" "$README"
+          }
+          replace_anchor "LAST_UPDATED" "$LAST_UPDATED"
+          replace_anchor "LATEST_VERSION" "$LATEST_VERSION"
+          replace_anchor "LAST_RELEASE_DATE" "$RELEASE_DATE"
+          if grep -q "<!-- REPO_STARS -->" "$README"; then
+            replace_anchor "REPO_STARS" "$STARS"
+            replace_anchor "REPO_FORKS" "$FORKS"
+            replace_anchor "REPO_OPEN_ISSUES" "$OPEN_ISSUES"
+          fi
+          if git diff --quiet "$README"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit README refresh
+        if: steps.readme.outputs.changed == 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          git add README.md
+          git commit -m "docs: monthly README metadata refresh [skip ci]"
+          git push origin HEAD:main
+
+      # =========================================================================
+      # PART 2 — Release only if there is something real to release
+      # =========================================================================
+      - name: Find latest tag
+        id: latest
+        run: |
+          git fetch --tags --quiet
+          LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
+          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Analyze commits since last release
+        id: analyze
+        env:
+          PREV_TAG: ${{ steps.latest.outputs.tag }}
+          NOTES_DIR: /tmp/release-notes
+        run: bash .github/scripts/analyze-commits.sh
+
+      - name: Stop here if nothing meaningful changed
+        if: steps.analyze.outputs.bump == 'none' || github.event.inputs.dry_run == 'true'
+        run: |
+          echo "Bump: ${{ steps.analyze.outputs.bump }} | dry_run: ${{ github.event.inputs.dry_run }}"
+          echo "No release will be created this run."
+
+      - name: Compute next version
+        id: version
+        if: steps.analyze.outputs.bump != 'none' && github.event.inputs.dry_run != 'true'
+        env:
+          LATEST_TAG: ${{ steps.latest.outputs.tag }}
+          BUMP: ${{ steps.analyze.outputs.bump }}
+        run: |
+          if [ -z "$LATEST_TAG" ]; then
+            NEW_TAG="v1.0.0"
+          else
+            VERSION="${LATEST_TAG#v}"
+            MAJOR=$(echo "$VERSION" | cut -d. -f1); MINOR=$(echo "$VERSION" | cut -d. -f2); PATCH=$(echo "$VERSION" | cut -d. -f3)
+            case "$BUMP" in
+              major) NEW_TAG="v$((MAJOR + 1)).0.0" ;;
+              minor) NEW_TAG="v${MAJOR}.$((MINOR + 1)).0" ;;
+              *)     NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
+            esac
+          fi
+          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Confirm tag/release does not already exist
+        id: dup
+        if: steps.version.outputs.new_tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          if git rev-parse "$NEW_TAG" >/dev/null 2>&1 || gh release view "$NEW_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Render release notes
+        if: steps.dup.outputs.exists == 'false'
+        env:
+          NOTES_DIR: /tmp/release-notes
+          OUTPUT_FILE: /tmp/release-body.md
+        run: bash .github/scripts/render-notes.sh
+
+      - name: Build release title
+        id: title
+        if: steps.dup.outputs.exists == 'false'
+        env:
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          MONTH=$(date -u +"%B %Y")
+          echo "title=${NEW_TAG} — ${MONTH} Update" >> "$GITHUB_OUTPUT"
+
+      - name: Update CHANGELOG.md
+        if: steps.dup.outputs.exists == 'false'
+        env:
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          DATE=$(date -u +"%Y-%m-%d")
+          ENTRY_FILE=$(mktemp)
+          { echo "## [$NEW_TAG] - $DATE"; echo; cat /tmp/release-body.md; echo; } > "$ENTRY_FILE"
+          [ -f CHANGELOG.md ] || printf "# Changelog\n\nAll notable changes to this project are documented here.\n\n" > CHANGELOG.md
+          if grep -q '^## \[' CHANGELOG.md; then
+            awk 'BEGIN{done=0} /^## \[/{ if(!done){while((getline line < "'"$ENTRY_FILE"'")>0) print line; done=1 } } {print}' CHANGELOG.md > CHANGELOG.md.tmp
+            mv CHANGELOG.md.tmp CHANGELOG.md
+          else
+            cat "$ENTRY_FILE" >> CHANGELOG.md
+          fi
+          rm -f "$ENTRY_FILE"
+          if ! git diff --quiet CHANGELOG.md; then
+            git add CHANGELOG.md
+            git commit -m "docs: update changelog for $NEW_TAG [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Push release tag
+        if: steps.dup.outputs.exists == 'false'
+        env:
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          git tag -a "$NEW_TAG" -m "${{ steps.title.outputs.title }}"
+          git push origin "$NEW_TAG"
+
+      - name: Publish GitHub Release
+        if: steps.dup.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          gh release create "$NEW_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "${{ steps.title.outputs.title }}" \
+            --notes-file /tmp/release-body.md \
+            --latest
