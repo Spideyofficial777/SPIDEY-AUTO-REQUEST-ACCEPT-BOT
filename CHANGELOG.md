@@ -7,6 +7,25 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v1.0.11] - 2026-07-02
+
+## Documentation
+
+- Refresh README metadata for v1.0.10 [skip ci] (c51a0ac)
+
+## Internal Changes
+
+- SPIDEY-AUTO-REQUEST-ACCEPT-BOT (38b4550)
+
+## Files Updated
+
+- `.github/workflows/monthly-maintenance.yml`
+
+## Contributors
+
+- SPIDEY OFFICIAL
+- spideyofficial777
+
 ## [v1.0.10] - 2026-07-02
 
 ## Documentation
