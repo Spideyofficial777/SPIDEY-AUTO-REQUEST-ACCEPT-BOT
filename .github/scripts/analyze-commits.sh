@@ -1,36 +1,4 @@
 #!/usr/bin/env bash
-# =============================================================================
-# analyze-commits.sh
-# -----------------------------------------------------------------------------
-# Shared by: release.yml, monthly-maintenance.yml
-#
-# What it does:
-#   1. Looks at every commit between $PREV_TAG (exclusive) and HEAD.
-#   2. Sorts each commit into one of the release-note sections requested by
-#      the maintainer (Highlights, New Features, Improvements, Bug Fixes,
-#      Performance, Documentation, Internal Changes, Dependency Updates,
-#      Files Updated, Contributors).
-#   3. Decides the correct semantic-version bump (major / minor / patch /
-#      none) from what it found, following normal semver rules:
-#        - a breaking change            -> major
-#        - at least one new feature     -> minor
-#        - anything else (fix, chore…)  -> patch
-#        - zero real commits            -> none
-#
-# Commits are matched primarily against Conventional Commit prefixes
-# (feat:, fix:, perf:, docs:, refactor:, chore:, build:, ci:, test:).
-# Repositories that don't use that convention still get a reasonable
-# category via plain-English keyword matching on the subject line, so
-# nothing silently ends up mis-classified as "Internal Changes".
-#
-# Bot-authored commits (README/version bumps made by these workflows
-# themselves) are always excluded so a release never lists itself as a
-# change.
-#
-# Output:
-#   - Populates $NOTES_DIR/<section>.md with one bullet per matching commit.
-#   - Writes `bump` and `commit_count` to $GITHUB_OUTPUT.
-# =============================================================================
 set -euo pipefail
 
 PREV_TAG="${PREV_TAG:-}"
