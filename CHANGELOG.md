@@ -7,6 +7,16 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v1.0.12] - 2026-07-02
+
+## Documentation
+
+- Refresh README metadata for v1.0.11 [skip ci] (c6cfe81)
+
+## Contributors
+
+- spideyofficial777
+
 ## [v1.0.11] - 2026-07-02
 
 ## Documentation
