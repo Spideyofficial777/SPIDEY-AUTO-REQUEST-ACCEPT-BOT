@@ -1,36 +1,3 @@
-# =============================================================================
-# MONTHLY MAINTENANCE WORKFLOW
-# =============================================================================
-# Purpose
-#   A safety net that runs independently of push activity, in case a month
-#   goes by with commits sitting on `main` that never triggered a release
-#   for some reason (e.g. release.yml was disabled/failing that day), and
-#   to keep the README's "last checked" metadata from going stale during
-#   quiet periods.
-#
-#   Every run:
-#     1. Refreshes the README metadata block (date, version, stats) —
-#        unconditionally, but only commits if something actually changed.
-#     2. Checks for commits since the last tag using the same
-#        analyze-commits.sh script release.yml uses. If there are none,
-#        it stops there — no empty/duplicate release is created. If there
-#        are real changes, it cuts a release exactly the way release.yml
-#        would have.
-#
-# Schedule
-#   GitHub Actions cron has no native "every 30 days" trigger, so this runs
-#   on the 1st of each month at 00:00 UTC as the closest practical
-#   approximation, plus workflow_dispatch for an on-demand run.
-#
-# Why `contents: write`
-#   Needed to commit the README refresh and, when applicable, push a tag
-#   and create a release — the same reasons documented in release.yml and
-#   readme-update.yml.
-#
-# Loop prevention
-#   All commits made here carry `[skip ci]`. release.yml's trigger ignores
-#   `[skip ci]`/`[bot]` commits, so this cannot cause a second workflow run.
-# =============================================================================
 
 name: Monthly Maintenance
 
