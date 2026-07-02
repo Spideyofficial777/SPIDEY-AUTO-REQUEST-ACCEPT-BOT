@@ -7,6 +7,16 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v1.0.8] - 2026-07-02
+
+## Internal Changes
+
+- SPIDEY-AUTO-REQUEST-ACCEPT-BOT (ed9f79d)
+
+## Contributors
+
+- SPIDEY OFFICIAL
+
 ## [v1.0.0] - Baseline
 
 Initial tracked release. Established the current feature set: request
