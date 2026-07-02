@@ -9,10 +9,16 @@
 [![Telegram](https://img.shields.io/badge/Telegram-Bot-blue?style=for-the-badge&logo=telegram)](https://t.me/SPIDER_MAN_GAMING_bot)
 [![Python](https://img.shields.io/badge/Python-3.9+-yellow?style=for-the-badge&logo=python)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Spideyofficial777/SPIDEY-AUTO-REQUEST-ACCEPT-BOT?style=for-the-badge&logo=github)](https://github.com/Spideyofficial777/SPIDEY-AUTO-REQUEST-ACCEPT-BOT/releases/latest)
 
 **[🚀 Live Bot](https://t.me/SPIDER_MAN_GAMING_bot)** • **[💬 Support Group](https://telegram.me/spideyofficial_777)** • **[📢 Updates Channel](https://t.me/+QVmLP_hlHNw3M2I1)**
 
 ---
+
+<!-- AUTOMATED METADATA – updated by .github/workflows/readme-update.yml and monthly-maintenance.yml, do not edit by hand -->
+| 📅 Last Updated | 🏷️ Latest Version | 📆 Last Release | ⭐ Stars | 🍴 Forks |
+|:-:|:-:|:-:|:-:|:-:|
+| <!-- LAST_UPDATED -->–<!-- END_LAST_UPDATED --> | <!-- LATEST_VERSION -->–<!-- END_LATEST_VERSION --> | <!-- LAST_RELEASE_DATE -->–<!-- END_LAST_RELEASE_DATE --> | <!-- REPO_STARS -->–<!-- END_REPO_STARS --> | <!-- REPO_FORKS -->–<!-- END_REPO_FORKS --> |
 
 </div>
 
