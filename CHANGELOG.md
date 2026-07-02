@@ -7,6 +7,20 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v1.0.9] - 2026-07-02
+
+## Internal Changes
+
+- Update git identity in release workflow (c3f9a82)
+
+## Files Updated
+
+- `.github/workflows/release.yml`
+
+## Contributors
+
+- SPIDEY OFFICIAL
+
 ## [v1.0.8] - 2026-07-02
 
 ## Internal Changes
