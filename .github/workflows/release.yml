@@ -39,7 +39,7 @@ jobs:
       - name: Configure git identity for commits made by this job
         run: |
           git config user.name  "spideyofficial777"
-          git config user.email "41898282+spideyofficial777@users.noreply.github.com"
+          git config user.email "173601904+spideyofficial777@users.noreply.github.com"
 
       # -----------------------------------------------------------------------
       # 1. Find the latest existing tag (never overwritten, only read).
