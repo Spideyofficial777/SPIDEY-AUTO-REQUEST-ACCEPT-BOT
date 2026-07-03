@@ -20,6 +20,11 @@ def is_enabled(value, default):
         return default
         
 #--------------------------------------------        
+VERSION = "1.0.0"
+script.RESTART_TXT = script.RESTART_TXT.replace("{VERSION}", VERSION)
+script.ALERT_MSG = script.ALERT_MSG.replace("{VERSION}", VERSION)
+script.ABOUT_TXT = script.ABOUT_TXT.replace("{VERSION}", VERSION)
+#--------------------------------------------
 SESSION = environ.get('SESSION', 'auto_request_acc')
 #--------------------------------------------    
 API_ID = int(getenv("API_ID", ""))
