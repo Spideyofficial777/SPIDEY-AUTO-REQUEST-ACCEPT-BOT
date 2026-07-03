@@ -29,5 +29,4 @@ write_section "deps.md"          "Dependency Updates"
 write_section "files.md"         "Files Updated"
 write_section "contributors.md"  "Contributors"
 
-# Trim trailing blank lines
 sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$OUTPUT_FILE" 2>/dev/null || true
