@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       force:
-        description: "Create a release even if the bump would normally be skipped"
+        description: "Create a release even if no commit is normally release-eligible"
         required: false
         default: "false"
         type: choice
@@ -38,23 +38,28 @@ jobs:
 
       - name: Configure git identity for commits made by this job
         run: |
-          git config user.name  "spideyofficial777"
-          git config user.email "173601904+spideyofficial777@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # -----------------------------------------------------------------------
-      # 1. Find the latest existing tag (never overwritten, only read).
-      # -----------------------------------------------------------------------
-      - name: Find latest tag
+      - name: Read current version from configs.py
+        id: current
+        run: bash .github/scripts/read-configs-version.sh
+
+      - name: Resolve previous release tag
         id: latest
+        env:
+          CURRENT_VERSION: ${{ steps.current.outputs.current_version }}
         run: |
           git fetch --tags --quiet
-          LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
-          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
-          echo "Latest tag: ${LATEST_TAG:-<none>}"
+          CANDIDATE="v${CURRENT_VERSION}"
+          if git rev-parse "$CANDIDATE" >/dev/null 2>&1; then
+            TAG="$CANDIDATE"
+          else
+            TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Comparing against: ${TAG:-<repo start>}"
 
-      # -----------------------------------------------------------------------
-      # 2. Analyze real commits since that tag and classify them.
-      # -----------------------------------------------------------------------
       - name: Analyze commits since last release
         id: analyze
         env:
@@ -62,48 +67,67 @@ jobs:
           NOTES_DIR: /tmp/release-notes
         run: bash .github/scripts/analyze-commits.sh
 
-      - name: Skip if there is nothing to release
+      - name: Decide whether a release is warranted
         id: gate
         env:
           BUMP: ${{ steps.analyze.outputs.bump }}
+          COMMIT_COUNT: ${{ steps.analyze.outputs.commit_count }}
+          RELEASE_ELIGIBLE: ${{ steps.analyze.outputs.release_eligible }}
           FORCE: ${{ github.event.inputs.force || 'false' }}
         run: |
-          if [ "$BUMP" = "none" ] && [ "$FORCE" != "true" ]; then
-            echo "No qualifying commits since the last release — nothing to do."
+          if [ "$FORCE" = "true" ]; then
+            echo "Manual force-release requested."
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          elif [ "$COMMIT_COUNT" -eq 0 ]; then
+            echo "No commits since the last release — nothing to do."
             echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "heartbeat=false" >> "$GITHUB_OUTPUT"
+          elif [ "$RELEASE_ELIGIBLE" != "true" ]; then
+            echo "No release required because no user-facing changes were detected."
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "heartbeat=true" >> "$GITHUB_OUTPUT"
           else
             echo "proceed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # -----------------------------------------------------------------------
-      # 3. Compute the next version number from the bump type.
-      # -----------------------------------------------------------------------
+      - name: Heartbeat-only README refresh (no release)
+        if: steps.gate.outputs.proceed == 'false' && steps.gate.outputs.heartbeat == 'true'
+        run: |
+          README="README.md"
+          if ! grep -q "<!-- LAST_UPDATED -->" "$README"; then
+            echo "No metadata anchors found — nothing to refresh."
+            exit 0
+          fi
+          LAST_UPDATED=$(date -u +"%B %d, %Y")
+          sed -E "s|<!-- LAST_UPDATED -->.*<!-- END_LAST_UPDATED -->|<!-- LAST_UPDATED -->${LAST_UPDATED}<!-- END_LAST_UPDATED -->|g" \
+            "$README" > "${README}.tmp" && mv "${README}.tmp" "$README"
+          if ! git diff --quiet "$README"; then
+            git add README.md
+            git commit -m "docs: refresh README timestamp [skip ci]"
+            git push origin HEAD:main
+          else
+            echo "README already current — nothing to commit."
+          fi
+
       - name: Compute next version
         id: version
         if: steps.gate.outputs.proceed == 'true'
         env:
-          LATEST_TAG: ${{ steps.latest.outputs.tag }}
+          CURRENT_VERSION: ${{ steps.current.outputs.current_version }}
           BUMP: ${{ steps.analyze.outputs.bump }}
         run: |
-          if [ -z "$LATEST_TAG" ]; then
-            NEW_TAG="v1.0.0"
-          else
-            VERSION="${LATEST_TAG#v}"
-            MAJOR=$(echo "$VERSION" | cut -d. -f1)
-            MINOR=$(echo "$VERSION" | cut -d. -f2)
-            PATCH=$(echo "$VERSION" | cut -d. -f3)
-            case "${BUMP/none/patch}" in
-              major) NEW_TAG="v$((MAJOR + 1)).0.0" ;;
-              minor) NEW_TAG="v${MAJOR}.$((MINOR + 1)).0" ;;
-              *)     NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
-            esac
-          fi
-          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
-          echo "Next version: $NEW_TAG"
+          MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+          MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+          PATCH=$(echo "$CURRENT_VERSION" | cut -d. -f3)
+          case "${BUMP/none/patch}" in
+            major) NEW_VERSION="$((MAJOR + 1)).0.0" ;;
+            minor) NEW_VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
+            *)     NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
+          esac
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "new_tag=v${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Next version: $NEW_VERSION"
 
-      # -----------------------------------------------------------------------
-      # 4. Duplicate-release guard — makes the whole workflow safe to re-run.
-      # -----------------------------------------------------------------------
       - name: Check the tag/release doesn't already exist
         id: dup
         if: steps.gate.outputs.proceed == 'true'
@@ -121,22 +145,13 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # -----------------------------------------------------------------------
-      # 5. Render the categorized release notes body.
-      # -----------------------------------------------------------------------
       - name: Render release notes
-        id: notes
         if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
         env:
           NOTES_DIR: /tmp/release-notes
           OUTPUT_FILE: /tmp/release-body.md
         run: bash .github/scripts/render-notes.sh
 
-      # -----------------------------------------------------------------------
-      # 6. Build a professional, human-sounding release title.
-      #    (No mention of tooling — this is meant to read like a normal
-      #    changelog entry the maintainer wrote themselves.)
-      # -----------------------------------------------------------------------
       - name: Build release title
         id: title
         if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
@@ -169,9 +184,12 @@ jobs:
           esac
           echo "title=${NEW_TAG} — ${SUBTITLE}" >> "$GITHUB_OUTPUT"
 
-      # -----------------------------------------------------------------------
-      # 7. Update CHANGELOG.md (prepend under a new version heading).
-      # -----------------------------------------------------------------------
+      - name: Update VERSION in configs.py
+        if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        run: bash .github/scripts/bump-configs-version.sh
+
       - name: Update CHANGELOG.md
         if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
         env:
@@ -190,61 +208,15 @@ jobs:
             printf "# Changelog\n\nAll notable changes to this project are documented here.\n\n" > CHANGELOG.md
           fi
 
-          # Insert the new entry directly after the top-level heading/intro
-          awk 'BEGIN{done=0} /^## \[/{ if(!done){while((getline line < "'"$ENTRY_FILE"'")>0) print line; done=1 } } {print}' CHANGELOG.md > CHANGELOG.md.tmp
-
-          # If there was no existing "## [" entry (first ever changelog), just append
-          if ! grep -q '^## \[' CHANGELOG.md; then
-            cat "$ENTRY_FILE" >> CHANGELOG.md
-          else
+          if grep -q '^## \[' CHANGELOG.md; then
+            awk 'BEGIN{done=0} /^## \[/{ if(!done){while((getline line < "'"$ENTRY_FILE"'")>0) print line; done=1 } } {print}' CHANGELOG.md > CHANGELOG.md.tmp
             mv CHANGELOG.md.tmp CHANGELOG.md
+          else
+            cat "$ENTRY_FILE" >> CHANGELOG.md
           fi
-          rm -f CHANGELOG.md.tmp "$ENTRY_FILE"
+          rm -f "$ENTRY_FILE"
 
-          if ! git diff --quiet CHANGELOG.md; then
-            git add CHANGELOG.md
-            git commit -m "docs: update changelog for $NEW_TAG [skip ci]"
-            git push origin HEAD:main
-          fi
-
-      # -----------------------------------------------------------------------
-      # 8. Push the tag (annotated, never force-pushed / never overwritten).
-      # -----------------------------------------------------------------------
-      - name: Push release tag
-        if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
-        env:
-          NEW_TAG: ${{ steps.version.outputs.new_tag }}
-        run: |
-          git tag -a "$NEW_TAG" -m "${{ steps.title.outputs.title }}"
-          git push origin "$NEW_TAG"
-
-      # -----------------------------------------------------------------------
-      # 9. Publish the GitHub Release.
-      # -----------------------------------------------------------------------
-      - name: Publish GitHub Release
-        if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_TAG: ${{ steps.version.outputs.new_tag }}
-        run: |
-          gh release create "$NEW_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "${{ steps.title.outputs.title }}" \
-            --notes-file /tmp/release-body.md \
-            --latest
-
-      # -----------------------------------------------------------------------
-      # 10. Refresh the README metadata block for the release we just made.
-      #
-      #     This runs inline, in the same job, rather than relying on
-      #     readme-update.yml's `release: published` trigger. GitHub does not
-      #     fire workflow triggers from events created by the built-in
-      #     GITHUB_TOKEN (the `gh release create` call above uses it), so a
-      #     separate workflow listening for that event would never actually
-      #     run. Doing it here guarantees the README stays in sync with every
-      #     release without needing a personal access token.
-      # -----------------------------------------------------------------------
-      - name: Refresh README metadata for this release
+      - name: Refresh README metadata
         if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -272,8 +244,35 @@ jobs:
             replace_anchor "REPO_FORKS" "$FORKS"
           fi
 
-          if ! git diff --quiet "$README"; then
-            git add README.md
-            git commit -m "docs: refresh README metadata for $NEW_TAG [skip ci]"
+      - name: Commit release changes
+        if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
+        env:
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          git add configs.py CHANGELOG.md README.md 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Nothing to commit for $NEW_TAG (version/changelog/readme all unchanged)."
+          else
+            git commit -m "chore(release): $NEW_TAG [skip ci]"
             git push origin HEAD:main
           fi
+
+      - name: Push release tag
+        if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
+        env:
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          git tag -a "$NEW_TAG" -m "${{ steps.title.outputs.title }}"
+          git push origin "$NEW_TAG"
+
+      - name: Publish GitHub Release
+        if: steps.gate.outputs.proceed == 'true' && steps.dup.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+        run: |
+          gh release create "$NEW_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "${{ steps.title.outputs.title }}" \
+            --notes-file /tmp/release-body.md \
+            --latest
