@@ -34,10 +34,19 @@ from pyrogram import idle
 from Spidey.bot import SpideyBot
 from Spidey.util.keepalive import ping_server
 from Spidey.bot.clients import initialize_clients
+from plugins.group.group_registry import validate_registered_groups
+from plugins.force_sub import validate_force_sub_channels
 
+# Explicitly import nested group modules so they work even when the configured
+# Pyrogram smart-plugin loader only scans the top-level plugins directory.
+GROUP_MODULES = (
+    "welcome", "goodbye", "moderation", "warnings", "bans", "mutes",
+    "notes", "filters", "locks", "antiflood", "antispam", "reports",
+    "admin_tools", "settings", "private_help", "leave",
+)
+for module_name in GROUP_MODULES:
+    importlib.import_module(f"plugins.group.{module_name}")
 
-ppath = "plugins/*.py"
-files = glob.glob(ppath)
 SpideyBot.start()
 loop = asyncio.get_event_loop()
 
@@ -52,17 +61,35 @@ async def Spidey_start():
 
     await initialize_clients()
 
-    for name in files:
-        with open(name) as a:
-            patt = Path(a.name)
-            plugin_name = patt.stem.replace(".py", "")
-            plugins_dir = Path(f"plugins/{plugin_name}.py")
-            import_path = "plugins.{}".format(plugin_name)
-            spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
-            load = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(load)
-            sys.modules["plugins." + plugin_name] = load
-            print("Spidey Imported => " + plugin_name)
+    try:
+        await db.group_db.ensure_indexes()
+    except Exception as e:
+        logging.warning(f"Group database index setup skipped: {e}")
+
+    try:
+        group_audit = await validate_registered_groups(SpideyBot)
+        logging.info(
+            f"Persistent group registry: total={group_audit['total']} "
+            f"valid={group_audit['valid']} unavailable={group_audit['unavailable']}"
+        )
+    except Exception as e:
+        logging.warning(f"Persistent group registry validation skipped: {e}")
+
+    try:
+        force_sub_audit = await validate_force_sub_channels(SpideyBot)
+        for item in force_sub_audit:
+            if item["ok"]:
+                logging.info(
+                    f"Force-sub channel ready: {item['channel_id']} "
+                    f"{item['title']} status={item['status']}"
+                )
+            else:
+                logging.warning(
+                    f"Force-sub channel unavailable: {item['channel_id']} "
+                    f"error={item['error']}"
+                )
+    except Exception as e:
+        logging.warning(f"Force-sub validation skipped: {e}")
 
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
