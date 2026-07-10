@@ -7,6 +7,24 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v2.1.0] - 2026-07-10
+
+## Highlights
+
+- Update ABOUT_TXT with new build status (134053f)
+
+## New Features
+
+- Update ABOUT_TXT with new build status (134053f)
+
+## Files Updated
+
+- `Script.py`
+
+## Contributors
+
+- SPIDEY OFFICIAL
+
 ## [v1.2.1] - 2026-07-10
 
 ## Documentation
