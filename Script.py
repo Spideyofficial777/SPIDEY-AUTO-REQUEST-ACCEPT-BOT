@@ -57,7 +57,7 @@ class script(object):
   
   <blockquote>🌿 ᴍᴀɪɴᴛᴀɪɴᴇᴅ ʙʏ : <a href='https://telegram.me/Hacker_x_official_777'>ꜱᴘɪᴅᴇʏᴏғғɪᴄɪᴀʟ𝟽𝟽𝟽</a></blockquote></b>"""
     
-    ALERT_MSG = """ ⚡️ ʟɪᴠᴇ sʏsᴛᴇᴍ sᴛᴀᴛᴜs ⚡️\n\n❂ ʀᴀᴍ ●●●●●●●◌◌◌\n✇ ᴄᴘᴜ ●●●●●●●◌◌◌\n✪ ᴅᴀᴛᴀ ᴛʀᴀꜰɪᴄs ●●●●◌◌◌◌◌◌ 🛰\n\nᴠ𝟷.𝟶 [sᴛᴀʙʟᴇ] """
+    ALERT_MSG = """ ⚡️ ʟɪᴠᴇ sʏsᴛᴇᴍ sᴛᴀᴛᴜs ⚡️\n\n❂ ʀᴀᴍ ●●●●●●●◌◌◌\n✇ ᴄᴘᴜ ●●●●●●●◌◌◌\n✪ ᴅᴀᴛᴀ ᴛʀᴀꜰɪᴄs ●●●●◌◌◌◌◌◌ 🛰\n\nᴠ𝟸.𝟶 [sᴛᴀʙʟᴇ] """
     
     ABOUT_TXT = """<blockquote><b>‣ ᴍʏ ɴᴀᴍᴇ : <a href='https://telegram.me/SPIDER_MAN_GAMING_bot'>sᴘɪᴅᴇʏ_ɢᴀᴍɪɴɢ_ᴏғғɪᴄɪᴀʟ_ʙᴏᴛ</a>\n‣ ᴄʀᴇᴀᴛᴏʀ : <a href='https://telegram.me/Hacker_x_official_777'>ꜱᴘɪᴅᴇʏᴏғғɪᴄɪᴀʟ𝟽𝟽𝟽</a>\n‣ ʟɪʙʀᴀʀʏ : ᴘʏʀᴏɢʀᴀᴍ\n‣ ʟᴀɴɢᴜᴀɢᴇ : ᴘʏᴛʜᴏɴ\n‣ ᴅᴀᴛᴀ ʙᴀsᴇ : ᴍᴏɴɢᴏ ᴅʙ\n‣ ʜᴏsᴛᴇᴅ ᴏɴ  : ᴀʟʟ ᴡᴇʙ\n‣ ʙᴜɪʟᴅ sᴛᴀᴛᴜs : ᴠ𝟸.𝟶 [sᴛᴀʙʟᴇ]</b></blockquote>"""    
     
