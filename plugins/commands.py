@@ -33,13 +33,13 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo.errors import PyMongoError
 from configs import * # Spidey, START_IMG
 from pyrogram.enums import ChatMembersFilter
-from group import *
 from utils import * # temp
 from aiohttp import web
 from datetime import datetime
 import traceback
 import os
 from Spidey.bot import SpideyBot as app, Client
+from plugins.force_sub import missing_force_sub_channels
 
 os.makedirs("logs", exist_ok=True)
 
@@ -100,11 +100,11 @@ async def start(bot, message):
 
     # Private chat (force subscription check)
     try:
-        for channel in CHANNEL_IDS:
-            try:
-                await app.get_chat_member(channel, message.from_user.id)
-            except UserNotParticipant:
-                raise UserNotParticipant
+        missing_channels, unavailable_channels = await missing_force_sub_channels(app, message.from_user.id)
+        if unavailable_channels:
+            logging.warning(f"Force-sub unavailable channels: {unavailable_channels}")
+        if missing_channels:
+            raise UserNotParticipant
 
         import random
         welcome_image_url = random.choice(START_IMG)
@@ -194,11 +194,11 @@ async def check_subscription(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     try:
         # Check if user is subscribed to all required channels
-        for channel_id in CHANNEL_IDS:
-            try:
-                await client.get_chat_member(channel_id, user_id)
-            except UserNotParticipant:
-                raise UserNotParticipant  # Force jump to except if any one fails
+        missing_channels, unavailable_channels = await missing_force_sub_channels(client, user_id)
+        if unavailable_channels:
+            logging.warning(f"Force-sub unavailable channels: {unavailable_channels}")
+        if missing_channels:
+            raise UserNotParticipant
 
         # If user is subscribed, show main menu
         keyboard = InlineKeyboardMarkup([
