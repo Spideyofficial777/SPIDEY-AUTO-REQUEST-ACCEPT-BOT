@@ -4,7 +4,7 @@
 
 <img src="https://i.ibb.co/chHyNh7m/IMG-20251002-111708-471.jpg" alt="Spidey Robot" width="600"/>
 
-### *The Ultimate Telegram Bot for Automated Request Management*
+### *Advanced Telegram Automation & Group Management Bot — V2.0*
 
 [![Telegram](https://img.shields.io/badge/Telegram-Bot-blue?style=for-the-badge&logo=telegram)](https://t.me/SPIDER_MAN_GAMING_bot)
 [![Python](https://img.shields.io/badge/Python-3.9+-yellow?style=for-the-badge&logo=python)](https://python.org)
@@ -18,13 +18,31 @@
 <!-- AUTOMATED METADATA – updated by .github/workflows/readme-update.yml and monthly-maintenance.yml, do not edit by hand -->
 | 📅 Last Updated | 🏷️ Latest Version | 📆 Last Release | ⭐ Stars | 🍴 Forks |
 |:-:|:-:|:-:|:-:|:-:|
-| <!-- LAST_UPDATED -->July 10, 2026<!-- END_LAST_UPDATED --> | <!-- LATEST_VERSION -->v1.2.0<!-- END_LATEST_VERSION --> | <!-- LAST_RELEASE_DATE -->2026-07-10<!-- END_LAST_RELEASE_DATE --> | <!-- REPO_STARS -->16<!-- END_REPO_STARS --> | <!-- REPO_FORKS -->7<!-- END_REPO_FORKS --> |
+| <!-- LAST_UPDATED -->July 10, 2026<!-- END_LAST_UPDATED --> | <!-- LATEST_VERSION -->v2.0<!-- END_LATEST_VERSION --> | <!-- LAST_RELEASE_DATE -->2026-07-10<!-- END_LAST_RELEASE_DATE --> | <!-- REPO_STARS -->16<!-- END_REPO_STARS --> | <!-- REPO_FORKS -->7<!-- END_REPO_FORKS --> |
 
 </div>
 
 ## 🌟 Why Choose Spidey Robot?
 
-Spidey Robot is a **next-generation Telegram bot** designed to revolutionize how you manage group requests, force subscriptions, and user engagement. With lightning-fast performance, advanced security features, and seamless multi-channel support, it's the perfect solution for content creators, community managers, and channel administrators.
+Spidey Robot V2.0 is an **all-in-one Telegram automation and group management bot** built for request approval, force subscription, moderation, welcome and goodbye automation, custom filters, notes, anti-spam protection, and private-chat group administration. Its persistent MongoDB-backed group registry keeps managed groups available across restarts and deployments.
+
+---
+
+## 🆕 What's New in V2.0
+
+- **Complete Group Management Suite** — Modular moderation and administration system
+- **Private Group Control** — Manage supported group settings directly from private chat
+- **Persistent Group Registry** — MongoDB-backed group discovery survives restarts and redeployments
+- **Shared Group Selector** — Inline group selection when managing multiple groups
+- **Custom Filters** — Text, media, captions, and URL buttons for keyword-triggered responses
+- **Welcome & Goodbye System** — Custom greetings, media support, auto-delete options, and Updates buttons
+- **Advanced Moderation** — Ban, temporary ban, mute, temporary mute, kick, warnings, and warning controls
+- **Notes System** — Save and retrieve reusable group content
+- **Content Locks** — Configure restrictions for supported content types
+- **Anti-Flood & Anti-Spam** — Protection against repetitive and abusive activity
+- **Reports & Admin Tools** — Member reporting and administrative utilities
+- **Safer Force Subscribe Validation** — Improved membership and unavailable-channel handling
+- **Improved Group `/start` Experience** — Dedicated group interface and navigation buttons
 
 ---
 
@@ -247,7 +265,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### 🕷️ **Built with Power. Designed for Excellence.** 🤖
 
-**© 2025 Spidey official. All Rights Reserved.**
+**© 2026 Spidey official. All Rights Reserved.**
 
 *Making Telegram bot management effortless, one request at a time.*
 
