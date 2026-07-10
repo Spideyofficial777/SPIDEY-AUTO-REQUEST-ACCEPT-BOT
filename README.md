@@ -18,7 +18,7 @@
 <!-- AUTOMATED METADATA – updated by .github/workflows/readme-update.yml and monthly-maintenance.yml, do not edit by hand -->
 | 📅 Last Updated | 🏷️ Latest Version | 📆 Last Release | ⭐ Stars | 🍴 Forks |
 |:-:|:-:|:-:|:-:|:-:|
-| <!-- LAST_UPDATED -->–<!-- END_LAST_UPDATED --> | <!-- LATEST_VERSION -->–<!-- END_LATEST_VERSION --> | <!-- LAST_RELEASE_DATE -->–<!-- END_LAST_RELEASE_DATE --> | <!-- REPO_STARS -->–<!-- END_REPO_STARS --> | <!-- REPO_FORKS -->–<!-- END_REPO_FORKS --> |
+| <!-- LAST_UPDATED -->July 10, 2026<!-- END_LAST_UPDATED --> | <!-- LATEST_VERSION -->v1.2.0<!-- END_LATEST_VERSION --> | <!-- LAST_RELEASE_DATE -->2026-07-10<!-- END_LAST_RELEASE_DATE --> | <!-- REPO_STARS -->16<!-- END_REPO_STARS --> | <!-- REPO_FORKS -->7<!-- END_REPO_FORKS --> |
 
 </div>
 

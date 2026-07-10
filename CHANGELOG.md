@@ -7,6 +7,90 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v1.2.0] - 2026-07-10
+
+## Highlights
+
+- Update bot messages and interface text (759e6c2)
+- Integrate modular group management plugins (6b9ed28)
+- Add safe channel membership validation (fdbe0a4)
+
+## New Features
+
+- Update bot messages and interface text (759e6c2)
+- Integrate modular group management plugins (6b9ed28)
+- Add safe channel membership validation (fdbe0a4)
+- Add owner-only leave command (6cfe0b1)
+- Add private group management controls (ecef3ae)
+- Add private command guidance (d913871)
+- Add group management settings (952c76c)
+- Add administrative tools (0e4210b)
+- Add user reporting system (463fb60)
+- Add anti-spam protection (bf376d5)
+- Add anti-flood protection (710908e)
+- Add configurable content locks (7a520f1)
+- Add custom filters with media and buttons (c66ba50)
+- Add persistent group notes (5c3b144)
+- Add mute and temporary mute commands (c775803)
+- Add ban and temporary ban commands (5beef88)
+- Add warning management system (4429c6f)
+- Add group moderation commands (f7fce26)
+- Add customizable goodbye messages (ef30358)
+- Add customizable welcome messages (2d9ec48)
+- Add shared private group selector (7888905)
+- Add persistent group discovery registry (48a9f59)
+- Add shared group management helpers (9afe4e7)
+- Initialize group management plugin package (aa85405)
+- Add persistent group registry support (e9a1027)
+- Add persistent group management storage (3513c08)
+
+## Improvements
+
+- Remove legacy group handlers (e8ba512)
+
+## Bug Fixes
+
+- Improve start flow and force-sub validation (69e524d)
+
+## Documentation
+
+- Update project documentation (278d220)
+- Change git user for actions in readme-update.yml (8390c60)
+
+## Internal Changes
+
+- Update release.yml (7df322f)
+- Update git identity in monthly maintenance workflow (a37c05f)
+
+## Files Updated
+
+- `.github/workflows/monthly-maintenance.yml`
+- `.github/workflows/readme-update.yml`
+- `.github/workflows/release.yml`
+- `Script.py`
+- `bot.py`
+- `database/database.py`
+- `database/group_db.py`
+- `plugins/commands.py`
+- `plugins/force_sub.py`
+- `plugins/group.py`
+- `plugins/group/__init__.py`
+- `plugins/group/admin_tools.py`
+- `plugins/group/antiflood.py`
+- `plugins/group/antispam.py`
+- `plugins/group/bans.py`
+- `plugins/group/filters.py`
+- `plugins/group/goodbye.py`
+- `plugins/group/group_registry.py`
+- `plugins/group/group_selector.py`
+- `plugins/group/helpers.py`
+- …and 12 more file(s)
+
+## Contributors
+
+- SPIDEY OFFICIAL
+- Spideyofficial777
+
 ## [v1.1.0] - 2026-07-03
 
 ## Highlights
