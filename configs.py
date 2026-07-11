@@ -42,7 +42,7 @@ REACTIONS = ["🤝", "😇", "🤗", "😍", "👍", "🎅", "😐", "🥰", "�
 #--------------------------------------------        
 ADMINS = list(map(int, getenv("ADMINS", "5518489725").split()))
 #--------------------------------------------    
-DATABASE_URI = getenv("DATABASE_URI", "mongodb+srv://spideyofficial777:6FwYFNcgrAPL8nqq@spidey777.pykfj.mongodb.net/?retryWrites=true&w=majority&appName=SPIDEY777")
+DATABASE_URI = getenv("DATABASE_URI", "")
 DATABASE_NAME = environ.get('DATABASE_NAME', "Spidey")
 #--------------------------------------------        
 LOG_CHANNEL = int(getenv("LOG_CHANNEL", "-1002294764885"))
