@@ -8,10 +8,80 @@ from database.database import db
 from utils import *
 import re
 
-LINK_PATTERN = re.compile(r'(?i)(?:https?://)?(?:www\.)?(?:github\.com/\S+|t\.me/\S+|telegram\.me/\S+|(?:[\w-]+\.)+[a-z]{2,}/\S+)')
-from Spidey.bot import SpideyBot as Client
 
-# Group Join & Leave Handlers
+ZERO_WIDTH_PATTERN = re.compile(
+    r'[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff\xa0]'
+)
+
+
+def _strip_zero_width(text: str) -> str:
+    """Remove invisible/zero-width unicode characters used to bypass filters."""
+    if not text:
+        return ""
+    return ZERO_WIDTH_PATTERN.sub("", text)
+
+
+MARKDOWN_LINK_PATTERN = re.compile(
+    r'\[[^\[\]]*\]\(\s*(https?://[^\s\)]+)\s*\)',
+    re.IGNORECASE,
+)
+
+HTML_LINK_PATTERN = re.compile(
+    r'<a\b[^>]*\bhref\s*=\s*["\']([^"\']+)["\']',
+    re.IGNORECASE,
+)
+
+LINK_PATTERN = re.compile(
+    r'(?:'
+        r'https?://\S+'                       # explicit http/https URL
+        r'|www\.\S+'                          # www. prefix
+        r'|t\.me/\S+'                         # Telegram link
+        r'|telegram\.me/\S+'                  # Telegram alt domain
+        r'|telegram\.dog/\S+'                 # Telegram alt domain
+        r'|discord\.gg/\S+'                   # Discord invite (short)
+        r'|discord\.com/invite/\S+'           # Discord invite (long)
+        r'|wa\.me/\S+'                        # WhatsApp click-to-chat
+        r'|chat\.whatsapp\.com/\S+'           # WhatsApp group invite
+        r'|bit\.ly/\S+'                       # shortener
+        r'|tinyurl\.com/\S+'                  # shortener
+        r'|t\.co/\S+'                         # shortener
+        r'|cutt\.ly/\S+'                      # shortener
+        r'|is\.gd/\S+'                        # shortener
+        r'|(?:[\w-]+\.)+(?:'                  # bare domain: one-or-more labels +
+            r'com|net|org|io|co|in|me|tv'
+            r'|info|biz|app|dev|xyz|gg'
+            r'|online|site|web|tech|store'
+            r'|live|stream|link|click|space'
+            r'|today|news|shop|pro|top|club'
+            r'|dog|gd|ly|us|uk|ca|de|fr|ru|cn|jp'
+            r'|edu|gov|mil'
+            r'|[a-z]{2,3}'                    # generic ccTLD catch-all
+        r')(?:/\S*)?'                          # optional path
+    r')',
+    re.IGNORECASE,
+)
+
+USERNAME_PATTERN = re.compile(r'@(?!admins?\b)\w{4,}', re.IGNORECASE)
+
+
+def _contains_link(text: str) -> bool:
+    """
+    Returns True if `text` contains a link in ANY form:
+    plain URL, bare domain, markdown link, or HTML <a href> link.
+    `text` should already be zero-width-stripped by the caller.
+    """
+    if not text:
+        return False
+    if MARKDOWN_LINK_PATTERN.search(text):
+        return True
+    if HTML_LINK_PATTERN.search(text):
+        return True
+    if LINK_PATTERN.search(text):
+        return True
+    return False
+
+
+from Spidey.bot import NexGuardBot as Client
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
@@ -124,12 +194,25 @@ async def group_text_handler(client, message):
     try:
         is_admin = await is_check_admin(client, message.chat.id, message.from_user.id)
 
-        # LINK BLOCKER
-        if LINK_PATTERN.search(message.text):
+        clean_text = _strip_zero_width(message.text)
+
+        if _contains_link(clean_text):
             if is_admin:
                 return
             await message.delete()
             warn = await message.reply("<b>❌ ʟɪɴᴋꜱ ᴀʀᴇ ɴᴏᴛ ᴀʟʟᴏᴡᴇᴅ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ.</b>")
+            try:
+                await asyncio.sleep(60)
+                await warn.delete()
+            except:
+                pass
+            return
+
+        elif USERNAME_PATTERN.search(clean_text):
+            if is_admin:
+                return
+            await message.delete()
+            warn = await message.reply("<b>❌ @ᴜꜱᴇʀɴᴀᴍᴇ ᴍᴇɴᴛɪᴏɴꜱ ᴀʀᴇ ɴᴏᴛ ᴀʟʟᴏᴡᴇᴅ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ.</b>")
             try:
                 await asyncio.sleep(60)
                 await warn.delete()
@@ -160,12 +243,12 @@ async def group_text_handler(client, message):
                                     disable_web_page_preview=True
                                 )
                         except Exception as e:
-                            # optionally log e here
+                            
                             pass
             hidden_mentions = ''.join([f'[\u2064](tg://user?id={user_id})' for user_id in admins])
             await message.reply_text('<code>Report sent</code>' + hidden_mentions)
 
     except Exception as e:
-        # handle/log unexpected errors if you want
+
         pass
            
