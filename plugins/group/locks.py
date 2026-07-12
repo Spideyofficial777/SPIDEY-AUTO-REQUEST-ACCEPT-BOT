@@ -1,7 +1,7 @@
 import re
 import asyncio
 from pyrogram import filters
-from Spidey.bot import NexGuardBot as app
+from Spidey.bot import SpideyBot as app
 from database.database import db
 from .helpers import is_admin
 
