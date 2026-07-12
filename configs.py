@@ -20,7 +20,7 @@ def is_enabled(value, default):
         return default
         
 #--------------------------------------------        
-VERSION = "2.1.1"
+VERSION = "2.2.0"
 script.RESTART_TXT = script.RESTART_TXT.replace("{VERSION}", VERSION)
 script.ALERT_MSG = script.ALERT_MSG.replace("{VERSION}", VERSION)
 script.ABOUT_TXT = script.ABOUT_TXT.replace("{VERSION}", VERSION)

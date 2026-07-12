@@ -7,6 +7,24 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v2.2.0] - 2026-07-12
+
+## Highlights
+
+- Refactor link handling and add username checks (724a317)
+
+## New Features
+
+- Refactor link handling and add username checks (724a317)
+
+## Files Updated
+
+- `group.py`
+
+## Contributors
+
+- SPIDEY OFFICIAL
+
 ## [v2.1.1] - 2026-07-12
 
 ## Improvements
