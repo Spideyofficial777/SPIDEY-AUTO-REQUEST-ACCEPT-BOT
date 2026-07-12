@@ -7,6 +7,32 @@ project's real commit history by `.github/workflows/release.yml` and
 `.github/workflows/monthly-maintenance.yml` — see `AUTOMATION.md` for how
 that works. Nothing is added by hand.
 
+## [v2.1.1] - 2026-07-12
+
+## Improvements
+
+- Refactor link blocking logic and warning message (c453cfe)
+
+## Documentation
+
+- Refresh README timestamp [skip ci] (4436bc7)
+
+## Internal Changes
+
+- Change DATABASE_URI default value to empty string (0b1481e)
+- Update alert message version in Script.py (ffbd84e)
+
+## Files Updated
+
+- `Script.py`
+- `configs.py`
+- `group.py`
+
+## Contributors
+
+- SPIDEY OFFICIAL
+- spideyofficial777
+
 ## [v2.1.0] - 2026-07-10
 
 ## Highlights
