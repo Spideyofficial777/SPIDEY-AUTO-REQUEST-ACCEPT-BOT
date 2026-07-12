@@ -7,6 +7,8 @@ from Script import script
 from database.database import db
 from utils import *
 import re
+
+LINK_PATTERN = re.compile(r'(?i)(?:https?://)?(?:www\.)?(?:github\.com/\S+|t\.me/\S+|telegram\.me/\S+|(?:[\w-]+\.)+[a-z]{2,}/\S+)')
 from Spidey.bot import SpideyBot as Client
 
 # Group Join & Leave Handlers
@@ -123,11 +125,17 @@ async def group_text_handler(client, message):
         is_admin = await is_check_admin(client, message.chat.id, message.from_user.id)
 
         # LINK BLOCKER
-        if re.findall(r'https?://\S+|www\.\S+|t\.me/\S+', message.text):
+        if LINK_PATTERN.search(message.text):
             if is_admin:
                 return
             await message.delete()
-            return await message.reply("<b>sᴇɴᴅɪɴɢ ʟɪɴᴋ ɪsɴ'ᴛ ᴀʟʟᴏᴡᴇᴅ ʜᴇʀᴇ ❌🤞🏻</b>")
+            warn = await message.reply("<b>❌ ʟɪɴᴋꜱ ᴀʀᴇ ɴᴏᴛ ᴀʟʟᴏᴡᴇᴅ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ.</b>")
+            try:
+                await asyncio.sleep(60)
+                await warn.delete()
+            except:
+                pass
+            return
 
         # @admin / @admins REPORT
         elif '@admin' in message.text.lower() or '@admins' in message.text.lower():
