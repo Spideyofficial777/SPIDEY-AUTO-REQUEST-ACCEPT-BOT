@@ -81,7 +81,7 @@ def _contains_link(text: str) -> bool:
     return False
 
 
-from Spidey.bot import NexGuardBot as Client
+from Spidey.bot import SpideyBot as Client
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
